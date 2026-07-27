@@ -7,7 +7,7 @@ Work top to bottom. Most problems are the probe never talking to the board, and 
 This is the common one. The board is fine, the probe is not answering.
 
 - Wrong framework or wrong chip. The SDI-12 half-duplex UART only works on an ESP32 with the esp-idf framework. On an ESP8266, or with the Arduino framework, the build succeeds and the probe stays silent. Use the board files in this repo and do not change the framework.
-- Data on the wrong pin. Check sdi12_data_pin matches the pin you actually wired to. G26 on Atom Lite and PoE, G1 on AtomS3, G2 on the Dial, GPIO16 on generic.
+- Data on the wrong pin. Check sdi12_data_pin matches the pin you actually wired to. G32 on Atom Lite and PoE, G1 on AtomS3, G2 on the Dial, GPIO16 on generic.
 - Red wire in the wrong hole. On the MT22 the red wire is data, not power. If red went to 5V, move it to the data pin. See the wiring guide.
 - Not enough voltage. The MT22 needs at least 3.6V. Power it from 5V, not the 3.3V rail.
 - Wrong SDI-12 address. Factory default on the MT22 is 0, which is what the config uses. If someone changed the probe address, set sdi12_address to match.

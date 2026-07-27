@@ -41,12 +41,12 @@ Full step by step, driver notes, and a fallback flasher if that page will not ta
 
 ## Install with ESPHome
 
-If you want to change the config or update over WiFi, run it through ESPHome instead. Your config is about ten lines that pull the packages from this repo, so fixes and new features come down when you rebuild:
+If you want to change the config, build your own binaries, or update over WiFi, run it through ESPHome instead. Install it with `pip install esphome` (see [docs/CONFIG.md](docs/CONFIG.md) for the full, no-surprises version, including Windows notes). Your config is about ten lines that pull the packages from this repo, so fixes and new features come down when you rebuild:
 
 ```yaml
 substitutions:
   name: tdr-sensor
-  sdi12_data_pin: GPIO26
+  sdi12_data_pin: GPIO32
 
 packages:
   tdr:
@@ -80,7 +80,7 @@ The sensor reads usefully out of the box, but for real work you calibrate it in 
 
 ## The analytics, and what they tell you
 
-Everything below runs on the device, updates live, and shows on the web page and in Home Assistant.
+Everything below runs on the device, updates live, and shows on the web page and in Home Assistant. For what every single entity on the web page means, its expected range, and what an odd value implies, see [docs/WEB_UI.md](docs/WEB_UI.md).
 
 - Peak and trough VWC, with the time each happened
 - Dryback since the last peak, both in points and as a percent of the peak

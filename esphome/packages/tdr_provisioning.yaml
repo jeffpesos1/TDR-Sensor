@@ -1,0 +1,146 @@
+# ===================================================================
+# TDR-Sensor fleet provisioning package
+# -------------------------------------------------------------------
+# Makes MQTT fully configurable from the device's own web page, with
+# nothing baked in at compile time. Paired with the wifi: ap: {} +
+# improv_serial: already in the factory builds, this means ONE
+# compiled binary can be flashed onto any number of sensors, each
+# pointed at its own WiFi network and MQTT broker afterwards, no
+# rebuild and no per-device secrets.yaml.
+#
+# WiFi: nothing to add here, it already works. With no ssid/password
+# compiled in, the device raises its own hotspot on first boot (or
+# whenever it cannot join a known network). Connect to it and either
+# use the Improv flow (web.esphome.io, or the ESPHome mobile app) or
+# the captive portal's own WiFi page to pick a network and enter its
+# password. ESPHome saves that to flash itself, no code needed here.
+#
+# MQTT: broker/port/username/password live in the controls below
+# instead of secrets.yaml. They persist to flash like any other
+# calibration setting, and get pushed into the mqtt: component both
+# on boot and live, so turning "MQTT Enabled" on after typing a
+# broker takes effect with no reflash and no reboot required (though
+# a reboot after entering everything is fine too).
+# ===================================================================
+
+mqtt:
+  id: mqtt_client
+  # Placeholder, always overwritten from the saved settings below
+  # before the client ever attempts to connect (enable_on_boot is
+  # off, and the on_boot block below runs before anything is enabled).
+  broker: "0.0.0.0"
+  enable_on_boot: false
+  discovery: true
+  discovery_retain: true
+
+text:
+  - platform: template
+    name: "MQTT Broker"
+    id: mqtt_broker_text
+    mode: text
+    optimistic: true
+    restore_value: true
+    initial_value: ""
+    max_length: 63
+    entity_category: config
+    icon: mdi:server-network
+    web_server:
+      sorting_group_id: sg_network
+      sorting_weight: 10
+    on_value:
+      then:
+        - lambda: 'id(mqtt_client).set_broker_address(x);'
+
+  - platform: template
+    name: "MQTT Username"
+    id: mqtt_user_text
+    mode: text
+    optimistic: true
+    restore_value: true
+    initial_value: ""
+    max_length: 63
+    entity_category: config
+    icon: mdi:account
+    web_server:
+      sorting_group_id: sg_network
+      sorting_weight: 11
+    on_value:
+      then:
+        - lambda: 'id(mqtt_client).set_username(x);'
+
+  - platform: template
+    name: "MQTT Password"
+    id: mqtt_pass_text
+    mode: password
+    optimistic: true
+    restore_value: true
+    initial_value: ""
+    max_length: 63
+    entity_category: config
+    icon: mdi:key
+    web_server:
+      sorting_group_id: sg_network
+      sorting_weight: 12
+    on_value:
+      then:
+        - lambda: 'id(mqtt_client).set_password(x);'
+
+number:
+  - platform: template
+    name: "MQTT Port"
+    id: mqtt_port_number
+    optimistic: true
+    restore_value: true
+    initial_value: 1883
+    min_value: 1
+    max_value: 65535
+    step: 1
+    mode: box
+    entity_category: config
+    icon: mdi:numeric
+    web_server:
+      sorting_group_id: sg_network
+      sorting_weight: 13
+    on_value:
+      then:
+        - lambda: 'id(mqtt_client).set_broker_port((uint16_t) x);'
+
+switch:
+  - platform: template
+    name: "MQTT Enabled"
+    id: mqtt_enabled_switch
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+    entity_category: config
+    icon: mdi:upload-network
+    web_server:
+      sorting_group_id: sg_network
+      sorting_weight: 14
+    turn_on_action:
+      - lambda: |-
+          if (id(mqtt_broker_text).state.empty()) {
+            ESP_LOGW("provisioning", "Set an MQTT broker before enabling MQTT");
+            id(mqtt_enabled_switch).turn_off();
+            return;
+          }
+          id(mqtt_client).enable();
+    turn_off_action:
+      - lambda: 'id(mqtt_client).disable();'
+
+# Belt and suspenders: re-apply the saved settings once everything
+# has restored from flash, so boot order between these controls never
+# matters. Priority -100 matches the g_ready pattern in
+# tdr_sdi12_core.yaml, guaranteed to run after every component's own
+# setup(), including these controls' restore.
+esphome:
+  on_boot:
+    priority: -100
+    then:
+      - lambda: |-
+          id(mqtt_client).set_broker_address(id(mqtt_broker_text).state);
+          id(mqtt_client).set_broker_port((uint16_t) id(mqtt_port_number).state);
+          id(mqtt_client).set_username(id(mqtt_user_text).state);
+          id(mqtt_client).set_password(id(mqtt_pass_text).state);
+          if (!id(mqtt_broker_text).state.empty() && id(mqtt_enabled_switch).state) {
+            id(mqtt_client).enable();
+          }

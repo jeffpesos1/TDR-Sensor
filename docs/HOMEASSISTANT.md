@@ -41,7 +41,7 @@ If you want to build the firmware yourself rather than use the pre-built image, 
 ```yaml
 substitutions:
   name: tdr-sensor
-  sdi12_data_pin: GPIO26
+  sdi12_data_pin: GPIO32
 
 packages:
   tdr:

@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" font-family="Segoe UI, Roboto, sans-serif">
   <rect width="720" height="360" rx="14" fill="#1b2430"/>
   <text x="30" y="44" fill="#e8efe9" font-size="22" font-weight="700">M5Stack Atom PoE wiring</text>
-  <text x="30" y="68" fill="#9fb0a4" font-size="14">Ethernet cable does power and data. Probe still goes on the Grove port (G26 passes through).</text>
+  <text x="30" y="68" fill="#9fb0a4" font-size="14">Ethernet cable does power and data. Probe still goes on the Grove port (G32 passes through).</text>
 
   <rect x="40" y="110" width="210" height="180" rx="12" fill="#4a3f6b" stroke="#6a5c9a"/>
   <text x="145" y="146" fill="#ffffff" font-size="16" font-weight="700" text-anchor="middle">Atom Lite</text>
@@ -24,7 +24,7 @@
   <path d="M266 195 C 360 195, 400 195, 500 195" stroke="#f2f2f2" stroke-width="4" fill="none"/>
   <path d="M258 222 C 360 222, 400 241, 500 241" stroke="#b9a06a" stroke-width="4" fill="none"/>
 
-  <text x="300" y="305" fill="#e8efe9" font-size="13" font-weight="700">G26</text>
+  <text x="300" y="305" fill="#e8efe9" font-size="13" font-weight="700">G32</text>
   <text x="300" y="322" fill="#9fb0a4" font-size="12">Data (red)</text>
   <text x="410" y="305" fill="#e8efe9" font-size="13" font-weight="700">5V</text>
   <text x="410" y="322" fill="#9fb0a4" font-size="12">Power (white)</text>

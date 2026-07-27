@@ -15,6 +15,7 @@ sensor:
 text_sensor:
   - platform: wifi_info
     ip_address:
+      id: ip_address_ts
       name: "IP Address"
       entity_category: diagnostic
       web_server:
@@ -27,3 +28,9 @@ text_sensor:
       web_server:
         sorting_group_id: sg_diag
         sorting_weight: 72
+    mac_address:
+      name: "MAC Address"
+      entity_category: diagnostic
+      web_server:
+        sorting_group_id: sg_diag
+        sorting_weight: 73

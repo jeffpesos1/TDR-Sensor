@@ -5,7 +5,7 @@
 substitutions:
   name: tdr-sensor
   friendly_name: TDR Sensor
-  sdi12_data_pin: GPIO26
+  sdi12_data_pin: GPIO32
   sdi12_address: "0"
   sample_interval: 10s
   timezone: Pacific/Auckland

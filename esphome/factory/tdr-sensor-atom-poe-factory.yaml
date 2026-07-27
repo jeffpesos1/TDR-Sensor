@@ -1,11 +1,13 @@
 # Factory build for M5Stack Atom PoE. This is what CI compiles into
-# the pre-built firmware on the Releases page. No provisioning
-# needed, plug in the ethernet cable and it comes up on DHCP.
+# the pre-built firmware on the Releases page. No WiFi provisioning
+# needed, plug in the ethernet cable and it comes up on DHCP. MQTT
+# broker/credentials are set from the device web page per site, see
+# packages/tdr_provisioning.yaml.
 
 substitutions:
   name: tdr-sensor
   friendly_name: TDR Sensor
-  sdi12_data_pin: GPIO26
+  sdi12_data_pin: GPIO32
   sdi12_address: "0"
   sample_interval: 10s
   timezone: Pacific/Auckland
@@ -14,6 +16,7 @@ packages:
   board: !include ../packages/boards/atom-poe.yaml
   core: !include ../packages/tdr_sdi12_core.yaml
   analytics: !include ../packages/tdr_analytics.yaml
+  provisioning: !include ../packages/tdr_provisioning.yaml
 
 esphome:
   name_add_mac_suffix: true

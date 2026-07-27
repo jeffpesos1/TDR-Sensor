@@ -1,6 +1,6 @@
 # M5Stack Atom Lite + AtomPoE base (W5500 ethernet) board package
 # Wired ethernet with PoE power, no WiFi config needed. The Grove
-# port on the PoE base passes through G26/G32 so the probe wiring is
+# port on the PoE base passes through G32/G26 so the probe wiring is
 # the same as a bare Atom Lite.
 # LED colours: blue = irrigating, green = drying, orange = target hit.
 
@@ -20,6 +20,7 @@ ethernet:
 text_sensor:
   - platform: ethernet_info
     ip_address:
+      id: ip_address_ts
       name: "IP Address"
       entity_category: diagnostic
       web_server:

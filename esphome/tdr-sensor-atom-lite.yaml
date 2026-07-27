@@ -1,7 +1,7 @@
 # ===================================================================
 # TDR Sensor on M5Stack Atom Lite (WiFi)
 # -------------------------------------------------------------------
-# Probe data wire on G26 (Grove yellow), 5V on Grove red, GND on
+# Probe data wire on G32 (Grove yellow), 5V on Grove red, GND on
 # Grove black. Full wiring and setup in the repo README.
 #
 # Needs secrets.yaml next to this file:
@@ -12,7 +12,7 @@
 substitutions:
   name: tdr-sensor
   friendly_name: TDR Sensor
-  sdi12_data_pin: GPIO26
+  sdi12_data_pin: GPIO32
   sdi12_address: "0"
   sample_interval: 10s
   timezone: Pacific/Auckland
@@ -25,6 +25,14 @@ packages:
   # MQTT for Mycodo, Node-RED, Grafana etc. Add the broker details
   # to secrets.yaml, then uncomment:
   # mqtt: !include packages/tdr_mqtt.yaml
+
+esphome:
+  # Same firmware/config flashed to every board, so each one needs its
+  # own identity on the network. This appends the last 3 bytes of the
+  # chip's own MAC address (burned into the ESP32 at the factory) to
+  # the name, e.g. tdr-sensor-a1b2c3. Stable across reboots and
+  # reflashes of the same physical board, no per-device editing.
+  name_add_mac_suffix: true
 
 wifi:
   ssid: !secret wifi_ssid

@@ -30,7 +30,7 @@ Each board brings the SDI-12 data line out on a different pin. The data pin is t
 
 ![Atom Lite wiring](img/wiring-atom-lite.svg)
 
-Data on G26, which is the Grove port. This is the default, so the stock config needs no changes.
+Data on G32, which is the Grove port. This is the default, so the stock config needs no changes.
 
 ### M5Stack AtomS3 Lite
 
@@ -42,7 +42,7 @@ Data on G1 (Grove port). The device file sets sdi12_data_pin to GPIO1 for you.
 
 ![Atom PoE wiring](img/wiring-atom-poe.svg)
 
-Data on G26. The PoE base passes the Grove port straight through, so the probe wiring is the same as the bare Atom Lite. The ethernet cable carries both power and network, so there is no WiFi to set up. The board comes up on DHCP.
+Data on G32. The PoE base passes the Grove port straight through, so the probe wiring is the same as the bare Atom Lite. The ethernet cable carries both power and network, so there is no WiFi to set up. The board comes up on DHCP.
 
 ### M5Stack Dial
 

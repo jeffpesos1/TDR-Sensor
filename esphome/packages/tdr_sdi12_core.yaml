@@ -31,7 +31,7 @@ substitutions:
   name: tdr-sensor
   friendly_name: TDR Sensor
   # SDI-12 data wire GPIO. Set by the board package normally.
-  sdi12_data_pin: GPIO26
+  sdi12_data_pin: GPIO32
   # SDI-12 sensor address. Factory default on the MT22 is 0.
   sdi12_address: "0"
   # How often to poll the probe. 10s is fine. Do not go below 3s, an
@@ -53,7 +53,12 @@ esphome:
       - lambda: 'id(g_ready) = true;'
 
 logger:
-  level: INFO
+  id: tdr_logger
+  # DEBUG is compiled in but off by default (initial_level), so the
+  # "Debug Logging" switch below can turn on SDI-12 bus traffic and
+  # other verbose detail on a live device without a reflash.
+  level: DEBUG
+  initial_level: INFO
 
 # reboot_timeout 0 so the node runs happily standalone (web page or
 # MQTT only, no Home Assistant connected). Without this the ESP
@@ -88,6 +93,9 @@ web_server:
     - id: sg_calibration
       name: "Calibration"
       sorting_weight: 30
+    - id: sg_network
+      name: "Network"
+      sorting_weight: 35
     - id: sg_tuning
       name: "Analytics Tuning"
       sorting_weight: 40
@@ -427,6 +435,77 @@ sensor:
       sorting_weight: 90
 
 # -------------------------------------------------------------------
+# Plain-language status log. Every sample_interval, print one readable
+# block to the serial/web log: where the device is on the network,
+# which GPIO the probe is wired to, and for each reading a plain
+# description, its typical range for the active substrate, and what
+# an out-of-range value usually means. Aimed at someone new to the
+# project reading the log for the first time, not at Home Assistant,
+# this creates no entity.
+# -------------------------------------------------------------------
+interval:
+  - interval: ${sample_interval}
+    then:
+      - lambda: |-
+          if (!id(g_ready)) return;  // wait for restored settings first
+
+          std::string ip = id(ip_address_ts).state;
+          int p = id(g_substrate_idx);
+          const char *substrate, *vwc_range, *ec_range;
+          switch (p) {
+            case 1: substrate = "Coco/Coir";   vwc_range = "0-75";  ec_range = "1-8";                     break;
+            case 2: substrate = "Peat";        vwc_range = "0-65";  ec_range = "0.5-5";                   break;
+            case 3: substrate = "Mineral Soil"; vwc_range = "10-45"; ec_range = "0.3-3";                   break;
+            case 4: substrate = "Custom";       vwc_range = "set by your own polynomial, no fixed range";
+                                                ec_range = "set by your crop, no fixed range";             break;
+            default: substrate = "Rockwool";   vwc_range = "0-80";  ec_range = "2-10";                    break;
+          }
+
+          ESP_LOGI("status", "===== TDR Sensor status =====");
+          ESP_LOGI("status", "Local address: %s   SDI-12 data GPIO: ${sdi12_data_pin}   Substrate profile: %s",
+                   ip.empty() ? "not connected yet" : ip.c_str(), substrate);
+
+          float v = id(vwc).state;
+          if (isnan(v)) {
+            ESP_LOGW("status",
+              "VWC: no reading. The probe on GPIO ${sdi12_data_pin} is not answering: check wiring, power to "
+              "the probe, and that sdi12_address matches the probe.");
+          } else {
+            ESP_LOGI("status",
+              "VWC (Volumetric Water Content) = %.1f%%. Share of the substrate's volume that is water right "
+              "now: 0%% is bone dry, 100%% is fully saturated. Typical range in %s is %s%%. Freshly irrigated "
+              "media sits near the top of that range, and a steady decline afterwards is the normal dryback "
+              "between waterings. A reading pinned near 0%% usually means the rods are not actually sitting "
+              "in substrate.",
+              v, substrate, vwc_range);
+          }
+
+          float t = id(substrate_temp).state;
+          if (isnan(t)) {
+            ESP_LOGW("status", "Substrate Temperature: no reading.");
+          } else {
+            ESP_LOGI("status",
+              "Substrate Temperature = %.1f C. Root-zone temperature, not air temperature. Most greenhouse "
+              "crops want the root zone between 18-24 C: below 15 C nutrient uptake slows down, above 28 C "
+              "roots are stressed and root disease becomes more likely.",
+              t);
+          }
+
+          float ec = id(pwec).state;
+          if (isnan(ec)) {
+            ESP_LOGW("status", "Pore Water EC: no reading.");
+          } else {
+            ESP_LOGI("status",
+              "Pore Water EC = %.2f dS/m. Salt concentration in the water the roots can actually reach, which "
+              "reads higher than your nutrient solution's EC because the substrate concentrates salts as the "
+              "plant drinks. Typical target for %s is %s dS/m. A slow rise across a crop cycle with no change "
+              "in feed is expected; a sudden jump usually means underwatering, a sudden drop usually means a "
+              "diluted or missed feed.",
+              ec, substrate, ec_range);
+          }
+          ESP_LOGI("status", "==============================");
+
+# -------------------------------------------------------------------
 # Substrate profile and calibration controls. All persist across
 # reboots.
 # -------------------------------------------------------------------
@@ -740,6 +819,32 @@ number:
     web_server:
       sorting_group_id: sg_calibration
       sorting_weight: 53
+
+# -------------------------------------------------------------------
+# Debug logging switch. Off by default (initial_level: INFO above),
+# flip it on to see SDI-12 bus traffic and other verbose detail live
+# in the logs, no reflash needed. Off again once you are done, DEBUG
+# left on permanently is noisy.
+# -------------------------------------------------------------------
+switch:
+  - platform: template
+    name: "Debug Logging"
+    id: debug_logging_switch
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+    entity_category: diagnostic
+    icon: mdi:bug
+    web_server:
+      sorting_group_id: sg_diag
+      sorting_weight: 94
+    turn_on_action:
+      - logger.set_level:
+          logger_id: tdr_logger
+          level: DEBUG
+    turn_off_action:
+      - logger.set_level:
+          logger_id: tdr_logger
+          level: INFO
 
 # -------------------------------------------------------------------
 # Calibration scripts and buttons

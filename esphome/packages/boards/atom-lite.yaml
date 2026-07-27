@@ -1,5 +1,5 @@
 # M5Stack Atom Lite board package
-# Onboard SK6812 LED on GPIO27, button on GPIO39, Grove port G26/G32.
+# Onboard SK6812 LED on GPIO27, button on GPIO39, Grove port G32/G26.
 # The LED shows steering state at a glance:
 #   blue   = irrigation in progress
 #   green  = drying, before dryback target

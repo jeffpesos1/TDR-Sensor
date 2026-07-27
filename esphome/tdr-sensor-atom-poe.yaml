@@ -1,7 +1,7 @@
 # ===================================================================
 # TDR Sensor on M5Stack Atom Lite + AtomPoE base (wired ethernet)
 # -------------------------------------------------------------------
-# One cable does power and data. Probe data wire on G26 (the Grove
+# One cable does power and data. Probe data wire on G32 (the Grove
 # port passes through the PoE base), 5V on Grove red, GND on Grove
 # black. No WiFi credentials needed, it grabs an address over DHCP.
 # ===================================================================
@@ -9,7 +9,7 @@
 substitutions:
   name: tdr-sensor
   friendly_name: TDR Sensor
-  sdi12_data_pin: GPIO26
+  sdi12_data_pin: GPIO32
   sdi12_address: "0"
   sample_interval: 10s
   timezone: Pacific/Auckland
